@@ -11,5 +11,6 @@ dependencies = [
     "ipykernel>=6.29.5",
     "logging>=0.4.9.6",
     "polars>=1.23.0",
+    "pyarrow>=19.0.1",
     "ruff>=0.9.7",
 ]
