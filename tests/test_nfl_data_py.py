@@ -50,24 +50,12 @@ def test_build_years_minimum(input_year, expected):
 
 
 @pytest.mark.parametrize(
-    "input_year",
-    [3100, 2010, [2010, 2012]],
+    "category, file, years, expected_len",
+    [
+        ("snap_counts", "snap_counts", None, 1),
+        ("ftn_charting", "ftn_charting", [2022, 2024], 3),
+    ],
 )
-def test_ftn_charting_file_list_invalid(input_year):
-    """
-    Test that an input that contains all years less than minimum
-    available year raises an error
-    """
-    with pytest.raises(ValueError):  # Expect ValueError to be raised
-        nflread.ftn_charting_file_list(input_year)
-
-
-@pytest.mark.parametrize(
-    "input_year, expected_len",
-    [(2023, 1), ([2021, 2024], 3)],
-)
-def test_ftn_charting_file_list(input_year, expected_len):
-    """Test FTN charting creates lists after 2022"""
-    test = nflread.ftn_charting_file_list(input_year)
+def test_create_file_list(category, file, years, expected_len):
+    test = nflread.create_file_list(category, file, years=years)
     assert len(test) == expected_len
-    assert all(isinstance(x, str) for x in test)

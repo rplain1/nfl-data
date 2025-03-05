@@ -1,18 +1,30 @@
-from nfl_etl.services.globals import NFLVERSE_DATA_URL, LATEST_YEAR
+from nfl_etl.services.globals import NFLVERSE_DATA_URL
 import logging
+from datetime import datetime
 
 
 class NFLread:
-    def __init__(
-        self, latest_year: int = LATEST_YEAR, base_url: str = NFLVERSE_DATA_URL
-    ):
-        self.latest_year = latest_year
+    def __init__(self, base_url: str = NFLVERSE_DATA_URL):
+        self.latest_year = self.most_recent_season()
         self.base_url = base_url
 
     @staticmethod
     def is_list_of_strings(lst: list) -> bool:
         """Check if list contains any string values"""
         return any(isinstance(item, str) for item in lst)
+
+    def most_recent_season(self):
+        """
+        Return the latest played NFL season
+        """
+        today = datetime.today()
+        year = today.year
+        # if before september, use previous year
+        # TODO: add edge case handling
+        if today.month < 9:
+            year -= 1
+
+        return year
 
     def build_years_list(
         self,
@@ -55,21 +67,32 @@ class NFLread:
 
         return years
 
-    def ftn_charting_file_list(
-        self, years: int | list[int] | str | list[str]
+    def create_file_list(
+        self,
+        category: str,
+        file: str,
+        years: int | list[int] | str | list[str] | None = None,
+        min_year: int | None = None,
+        filetype: str = "parquet",
     ) -> list[str]:
         """
-        Build a list of URLs for ftn_charting nflverse data.
+        Build a list of URLs for nflverse data.
 
         Args:
-            years: (int | str | list[int] | list[str]) years to build the list of
+            file_type (str): The type of file to generate URLs for (e.g., 'ftn_charting', 'snap_counts').
+            years (int | str | list[int] | list[str]): Years to build the list of.
+            min_year (int): Minimum valid year for this dataset.
 
         Returns:
-            list[str]: list of URLs for parquet files
+            list[str]: List of URLs for parquet files.
         """
-        years = self.build_years_list(years, min_year=2022)
 
-        if all(x < 2022 for x in years):
-            raise ValueError("FTN data must start on or after 2022")
+        if years is None:
+            return [f"{self.base_url}/{category}/{file}.{filetype}"]
 
-        return [f"{self.base_url}/ftn_charting/ftn_charting_{x}.parquet" for x in years]
+        years = self.build_years_list(years, min_year=min_year)
+
+        if min_year and all(x < min_year for x in years):
+            raise ValueError(f"{file} data must start on or after {min_year}")
+
+        return [f"{self.base_url}/{category}/{file}_{x}.{filetype}" for x in years]
