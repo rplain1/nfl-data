@@ -1,4 +1,5 @@
 import pytest
+
 from nfl_etl.services.nfl_data_py import NFLread
 
 nflread = NFLread()

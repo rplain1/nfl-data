@@ -1,6 +1,15 @@
-from nfl_etl.services.globals import NFLVERSE_DATA_URL
 import logging
+import os
 from datetime import datetime
+
+import duckdb
+
+from nfl_etl.services.global_vars import LATEST_YEAR, NFLVERSE_DATA_URL
+
+logging.basicConfig(
+    level=logging.INFO,  # Minimum level of messages to log (DEBUG, INFO, WARNING, ERROR, CRITICAL)
+    format="%(asctime)s - %(levelname)s - %(message)s",  # Format of log messages
+)
 
 
 class NFLread:
@@ -96,3 +105,38 @@ class NFLread:
             raise ValueError(f"{file} data must start on or after {min_year}")
 
         return [f"{self.base_url}/{category}/{file}_{x}.{filetype}" for x in years]
+
+    def load_nflreadr(
+        self,
+        con: duckdb.DuckDBPyConnection,
+        category: str,
+        file: str,
+        table_name: str,
+        years=None,
+        min_year=None,
+        schema="BASE",
+    ):
+        paths = self.create_file_list(
+            category=category, file=file, years=years, min_year=min_year
+        )
+        sql = f"""
+        CREATE OR REPLACE TABLE {schema}.{table_name.upper()} AS
+        SELECT *, get_current_timestamp() AS updated_at
+        FROM read_parquet({paths})
+        """
+        con.execute(sql)
+        logging.info(f"Table {schema}.{table_name.upper()} updated successfully")
+
+
+if __name__ == "__main__":
+    con = duckdb.connect(os.getenv("DB_PATH"))
+    print(NFLVERSE_DATA_URL)
+    nflread = NFLread()
+    nflread.load_nflreadr(
+        con,
+        "ftn_charting",
+        "ftn_charting",
+        table_name="FTN_CHARTING",
+        years=[2022, LATEST_YEAR],
+    )
+    con.close()

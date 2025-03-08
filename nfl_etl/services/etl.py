@@ -110,17 +110,6 @@ if __name__ == "__main__":
     # nflfastrETL.run()
 
     con = duckdb.connect(os.getenv("DB_PATH"))
-    files = [
-        "players",
-        "draft_picks",
-        # "qbr_season_level",
-        # "qbr_week_level",
-        # "otc_players",
-        # "officials",
-        # "historical_contracts",
-        # "otc_player_details",
-        # "combine",
-    ]
 
     # TODO: this can not handle different schemas in the same directory (or key)
     nflverse_data = {
