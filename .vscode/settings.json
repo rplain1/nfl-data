@@ -2,6 +2,10 @@
     "[python]": {
         "editor.formatOnSave": true,
         "editor.defaultFormatter": "charliermarsh.ruff",
+        "editor.codeActionsOnSave": {
+            "source.fixAll": "explicit",
+            "source.organizeImports": "explicit"
+        },
     },
     "[r]": {
         "editor.formatOnSave": true
@@ -11,4 +15,11 @@
     ],
     "python.testing.unittestEnabled": false,
     "python.testing.pytestEnabled": true,
+    "terminal.integrated.env.osx": {
+        "PYTHONPATH": "${workspaceFolder}/nfl_etl"
+    },
+    "python.envFile": "${workspaceFolder}/.env",
+    "python.analysis.extraPaths": [
+        "${workspaceFolder}/nfl_etl"
+    ]
 }
