@@ -1,15 +1,15 @@
-import polars as pl
-import duckdb
-import logging
-
 import configparser
+import logging
+import os
 from datetime import datetime
 
-import os
+import duckdb
+import polars as pl
 
-CONFIG = {
-    "DATABASE": {"SQLite": "data/base.base.sqlite", "DuckDB": "data/luna.luna.duckdb"}
-}
+logging.basicConfig(
+    level=logging.INFO,  # Minimum level of messages to log (DEBUG, INFO, WARNING, ERROR, CRITICAL)
+    format="%(asctime)s - %(levelname)s - %(message)s",  # Format of log messages
+)
 
 
 class ETL:
@@ -84,6 +84,16 @@ class ETL:
         self.load()
 
 
+def update_duckdb(con, url, table_name, schema="BASE"):
+    sql = f"""
+    CREATE OR REPLACE TABLE {schema}.{table_name.upper()} AS
+    SELECT *, get_current_timestamp() AS updated_at
+    FROM '{url}'
+    """
+    con.execute(sql)
+    logging.info(f"Table {schema}.{table_name.upper()} updated successfully")
+
+
 if __name__ == "__main__":
     config_file = {
         "DATABASE": {
@@ -97,3 +107,7 @@ if __name__ == "__main__":
     }
     nflfastrETL = ETL(config_file=config_file)
     nflfastrETL.run()
+
+    con = duckdb.connect(os.getenv("DB_PATH"))
+
+    con.close()
