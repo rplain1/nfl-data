@@ -68,6 +68,16 @@
       ],
       "Hash": "61e097f35917d342622f21cdc79c256e"
     },
+    "cpp11": {
+      "Package": "cpp11",
+      "Version": "0.5.1",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R"
+      ],
+      "Hash": "9df43854f1c84685d095ed6270b52387"
+    },
     "curl": {
       "Package": "curl",
       "Version": "6.2.1",
