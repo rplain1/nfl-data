@@ -12,7 +12,7 @@ logging.basicConfig(
 )
 
 
-class NFLread:
+class NFLreadETL:
     def __init__(self, base_url: str = NFLVERSE_DATA_URL):
         self.latest_year = self.most_recent_season()
         self.base_url = base_url
@@ -131,7 +131,7 @@ class NFLread:
 if __name__ == "__main__":
     con = duckdb.connect(os.getenv("DB_PATH"))
     print(NFLVERSE_DATA_URL)
-    nflread = NFLread()
+    nflread = NFLreadETL()
     nflread.load_nflreadr(
         con,
         "ftn_charting",
@@ -139,4 +139,109 @@ if __name__ == "__main__":
         table_name="FTN_CHARTING",
         years=[2022, LATEST_YEAR],
     )
+    nflread.load_nflreadr(
+        con,
+        "snap_counts",
+        "snap_counts",
+        table_name="SNAP_COUNTS",
+        years=[2012, LATEST_YEAR],
+    )
+    nflread.load_nflreadr(
+        con,
+        "espn_data",
+        "qbr_season_level",
+        table_name="QBR_SEASON",
+    )
+    nflread.load_nflreadr(
+        con,
+        "espn_data",
+        "qbr_week_level",
+        table_name="QBR_WEEKLY",
+    )
+    nflread.load_nflreadr(
+        con,
+        "players",
+        "players",
+        table_name="PLAYERS",
+    )
+    nflread.load_nflreadr(
+        con,
+        "draft_picks",
+        "draft_picks",
+        table_name="DRAFT_PICKS",
+    )
+    nflread.load_nflreadr(
+        con,
+        "officials",
+        "officials",
+        table_name="OFFICIALS",
+    )
+    nflread.load_nflreadr(
+        con,
+        "contracts",
+        "historical_contracts",
+        table_name="HISTORICAL_CONTRACTS",
+    )
+    nflread.load_nflreadr(
+        con, "pfr_advstats", "advstats_season_pass", "PRF_ADVSTATS_PASS_SEASON"
+    )
+    nflread.load_nflreadr(
+        con, "pfr_advstats", "advstats_season_rec", "PRF_ADVSTATS_REC_SEASON"
+    )
+    nflread.load_nflreadr(
+        con, "pfr_advstats", "advstats_season_rush", "PRF_ADVSTATS_RUSH_SEASON"
+    )
+    nflread.load_nflreadr(
+        con, "pfr_advstats", "advstats_season_def", "PRF_ADVSTATS_DEF_SEASON"
+    )
+    nflread.load_nflreadr(
+        con,
+        "pfr_advstats",
+        "advstats_week_pass",
+        "PRF_ADVSTATS_PASS_WK",
+        years=[2018, LATEST_YEAR],
+        min_year=2018,
+    )
+    nflread.load_nflreadr(
+        con,
+        "pfr_advstats",
+        "advstats_week_rec",
+        "PRF_ADVSTATS_REC_WK",
+        years=[2018, LATEST_YEAR],
+        min_year=2018,
+    )
+    nflread.load_nflreadr(
+        con,
+        "pfr_advstats",
+        "advstats_week_rush",
+        "PRF_ADVSTATS_RUSH_WK",
+        years=[2018, LATEST_YEAR],
+        min_year=2018,
+    )
+    nflread.load_nflreadr(
+        con,
+        "pfr_advstats",
+        "advstats_week_def",
+        "PRF_ADVSTATS_DEF_WK",
+        years=[2018, LATEST_YEAR],
+        min_year=2018,
+    )
+    (nflread.load_nflreadr(con, "combine", "combine", "COMBINE"),)
+    nflread.load_nflreadr(
+        con,
+        "injuries",
+        "injuries",
+        table_name="INJURIES",
+        years=[2009, LATEST_YEAR],
+        min_year=2009,
+    )
+    # nflread.load_nflreadr(  # this doesn't work because ngs_2016_passing
+    #     con,
+    #     "nextgen_stats",
+    #     "ngs_rushing",
+    #     table_name="NGS_RUSHING",
+    #     years=[2016, LATEST_YEAR],
+    #     min_year=2016,
+    #     metadata="_rushing",
+    # )
     con.close()
